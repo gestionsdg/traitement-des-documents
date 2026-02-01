@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord — Traitement des documents{% endblock %}
+
+{% block extra_head %}
+<style>
+  .dashboard-card { border: 4px solid var(--primary); }
+  .title-main {
+    text-align: center;
+    text-decoration: underline;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    margin: 0 0 6px 0;
+  }
+  .title-section { text-align: center; font-size: 20px; font-weight: 700; margin: 0 0 8px 0; }
+  .title-sortants { text-decoration: underline; }
+  .title-entrants { text-decoration: underline; }
+  .section-card { border: 1px solid #374151; }
+  .btn-lg { font-size: 15px; padding: 12px 16px; }
+
+  .btn-success { background: var(--success); border-color: var(--success); color: #fff; }
+  .btn-success:hover { filter: brightness(.95); }
+
+  .btn-entrants { font-weight: 700; }
+
+  .btn-sortant {
+    border: 2px solid #374151;
+    background: #90ee90;
+    color: var(--primary-600);
+    font-weight: 700;
+  }
+  .btn-sortant:hover { border-color: var(--primary); filter: brightness(0.98); }
+
+  .btn-bold { font-weight: 700; color: #fff; }
+
+  /* ✅ Boutons Kin / Province */
+  .btn-kin{
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+    font-weight:700;
+  }
+  .btn-kin:hover{ filter:brightness(.95); }
+
+  .btn-prov{
+    background:#0ea5e9;
+    border-color:#0ea5e9;
+    color:#fff;
+    font-weight:700;
+  }
+  .btn-prov:hover{ filter:brightness(.95); }
+
+  /* ✅ Boutons rapports détaillés */
+  .btn-report-detaille{
+    background:#0f766e;
+    border-color:#0f766e;
+    color:#fff;
+    font-weight:700;
+  }
+  .btn-report-detaille:hover{ filter:brightness(.95); }
+
+  /* ✅ Bouton marron (Hebdo) */
+  .btn-brown{
+    background:#8B4513;        /* Marron */
+    border-color:#8B4513;
+    color:#fff;
+    font-weight:700;
+  }
+  .btn-brown:hover{ filter:brightness(.95); }
+
+  /* ✅ NOUVEAUX BOUTONS EXPORT */
+  .btn-export-entrants{
+    background:#7c3aed;        /* Violet */
+    border-color:#7c3aed;
+    color:#fff;
+    font-weight:700;
+  }
+  .btn-export-entrants:hover{ filter:brightness(.95); }
+
+  .btn-export-sortants{
+    background:#c2410c;        /* Orange foncé */
+    border-color:#c2410c;
+    color:#fff;
+    font-weight:700;
+  }
+  .btn-export-sortants:hover{ filter:brightness(.95); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card dashboard-card">
+  <h2 class="title-main">Tableau de bord</h2>
+
+  <h3 style="margin-top:8px; font-weight:700; color:#000;">Accès rapide aux modules</h3>
+
+  <!-- ✅ Boutons rapports -->
+  <div class="toolbar" style="justify-content:flex-end; margin-top:8px; gap:8px; flex-wrap:wrap;">
+
+    <!-- ✅ Rapports DÉTAILLÉS -->
+    <a class="btn btn-report-detaille btn-lg btn-bold"
+       href="{% url 'documents:rapport_activites_detaille' %}?annee={{ now|date:'Y' }}">
+      Rapport d’activités (Annuel détaillé)
+    </a>
+
+    <a class="btn btn-report-detaille btn-lg btn-bold"
+       href="{% url 'documents:rapport_activites_mensuel_detaille' %}?annee={{ now|date:'Y' }}&mois={{ now|date:'n' }}">
+      Rapport d’activités (Mensuel détaillé)
+    </a>
+
+    <a class="btn btn-primary btn-lg btn-bold"
+       href="{% url 'documents:rapport_activites_mensuel' %}?annee={{ now|date:'Y' }}&mois={{ now|date:'n' }}">
+      Rapport d’activités (Mensuel)
+    </a>
+
+    <!-- ✅ Hebdomadaire en MARRON -->
+    <a class="btn btn-brown btn-lg btn-bold"
+       href="{% url 'documents:rapport_activites_hebdo' %}?debut={{ now|date:'Y-m-d' }}">
+      Rapport d’activités (Hebdo)
+    </a>
+
+    <!-- ✅ NOUVEAUX : EXPORTS (dans le tableau de bord) -->
+    <a class="btn btn-export-entrants btn-lg btn-bold"
+       href="{% url 'documents:export_entrants_excel' %}">
+      Export documents entrants
+    </a>
+
+    <a class="btn btn-export-sortants btn-lg btn-bold"
+       href="{% url 'documents:export_sortants_excel' %}">
+      Export documents sortants
+    </a>
+
+  </div>
+
+  <div class="grid grid-2" style="margin-top:12px">
+
+    <!-- ============================= -->
+    <!-- SECTION DOCUMENTS ENTRANTS -->
+    <!-- ============================= -->
+    <div class="card section-card">
+      <h3 class="title-section title-entrants">Documents entrants</h3>
+
+      <div class="toolbar" style="justify-content:center; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn-kin btn-lg btn-entrants" href="{% url 'documents:entrants_create_kin' %}">
+          + Nouveau (Kinshasa)
+        </a>
+
+        <a class="btn btn-prov btn-lg btn-entrants" href="{% url 'documents:entrants_create_prov' %}">
+          + Nouveau (Province)
+        </a>
+
+        <a class="btn btn-success btn-lg btn-entrants" href="{% url 'documents:entrants_list' %}">
+          Voir la liste
+        </a>
+      </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- SECTION DOCUMENTS SORTANTS -->
+    <!-- ============================= -->
+    <div class="card section-card">
+      <h3 class="title-section title-sortants">Documents sortants</h3>
+
+      <div class="grid" style="grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px">
+        <a class="btn btn-lg btn-sortant" href="{% url 'documents:sortants_list' 'chrono' %}">Chrono</a>
+        <a class="btn btn-lg btn-sortant" href="{% url 'documents:sortants_list' 'ordre-mission' %}">Ordre de mission</a>
+        <a class="btn btn-lg btn-sortant" href="{% url 'documents:sortants_list' 'gouvernement' %}">Gouvernement</a>
+        <a class="btn btn-lg btn-sortant" href="{% url 'documents:sortants_list' 'decision' %}">Décision</a>
+
+        <a class="btn btn-lg btn-sortant" href="{% url 'documents:sortants_list' 'prestations-familles' %}">
+          Paiement Prestations Sociales
+        </a>
+
+        <a class="btn btn-lg btn-sortant" href="{% url 'documents:sortants_list' 'allocations-familiales' %}">
+          Allocations familiales
+        </a>
+
+        <a class="btn btn-lg btn-sortant" href="{% url 'documents:sortants_list' 'allocations-prenatales' %}">
+          Allocations prénatales
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

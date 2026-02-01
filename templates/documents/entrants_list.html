@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+{% block body_class %}fullbleed{% endblock %}
+{% block title %}Documents entrants{% endblock %}
+
+{% block extra_head %}
+<style>
+:root{
+  --blue:#1e73be;
+  --black:#000;
+  --brown:#8b4513;
+  --kin:#2563eb;
+  --prov:#0ea5e9;
+
+  /* ✅ PDF buttons colors */
+  --pdf-kin:#7c3aed;   /* violet */
+  --pdf-prov:#c2410c;  /* orange foncé */
+}
+
+/* 🔷 Encadrement principal */
+.list-card{
+  padding:14px 16px;
+  border:2px solid var(--blue);
+  border-radius:12px;
+}
+
+/* 🔷 Titre */
+.page-title{
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+  text-decoration:underline;
+  margin:0 0 10px 0;
+}
+
+/* ✅ BARRE UNIQUE DE BOUTONS */
+.buttons-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:12px;
+}
+
+.btn-bold{ font-weight:700; }
+
+/* ✅ Boutons Kin / Province */
+.btn-kin{
+  background:var(--kin);
+  border:1px solid var(--kin);
+  color:#fff;
+  font-weight:700;
+}
+.btn-kin:hover{ filter:brightness(.95); }
+
+.btn-prov{
+  background:var(--prov);
+  border:1px solid var(--prov);
+  color:#fff;
+  font-weight:700;
+}
+.btn-prov:hover{ filter:brightness(.95); }
+
+.btn-dashboard{
+  background:#16a34a;
+  border-color:#16a34a;
+  color:#fff;
+  font-weight:700;
+}
+.btn-dashboard:hover{ filter:brightness(.95); }
+
+/* ✅ Boutons PDF */
+.btn-pdf-kin{
+  background:var(--pdf-kin);
+  border:1px solid var(--pdf-kin);
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+}
+.btn-pdf-kin:hover{ filter:brightness(.95); }
+
+.btn-pdf-prov{
+  background:var(--pdf-prov);
+  border:1px solid var(--pdf-prov);
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+}
+.btn-pdf-prov:hover{ filter:brightness(.95); }
+
+/* ✅ Bloc recherche */
+.search-bar{
+  border:2px solid var(--blue);
+  border-radius:12px;
+  padding:10px 12px;
+  margin:10px 0 12px 0;
+  display:flex;
+  gap:10px;
+  align-items:end;
+  flex-wrap:wrap;
+}
+
+.search-field{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:220px;
+}
+
+.search-field label{
+  font-weight:700;
+  font-size:13px;
+}
+
+.search-field input{
+  border:1px solid #9ca3af;
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:13px;
+  outline:none;
+}
+
+.search-field input:focus{
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(30,115,190,.15);
+}
+
+.search-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.btn-search{
+  background:var(--blue);
+  border:1px solid var(--blue);
+  color:#fff;
+  font-weight:700;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.btn-search:hover{ filter:brightness(.95); }
+
+.btn-reset{
+  background:#111827;
+  border:1px solid #111827;
+  color:#fff;
+  font-weight:700;
+  padding:8px 12px;
+  border-radius:10px;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.btn-reset:hover{ filter:brightness(.95); }
+
+/* ✅ NOUVEAU : filtres intégrés à droite dans l'encadrement recherche */
+.search-filters{
+  margin-left:auto;            /* ⬅ pousse à l’extrême droite */
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:end;
+}
+
+.search-filters a{
+  border-radius:10px;
+  padding:8px 12px;
+  text-decoration:none;
+  font-weight:700;
+  border:1px solid #374151;
+  background:#f3f4f6;
+  color:#111827;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.search-filters a:hover{ filter:brightness(.98); }
+
+.search-filters a.active{
+  background:#111827;
+  border-color:#111827;
+  color:#fff;
+}
+
+/* 🔷 Encadrement bleu du tableau */
+.table-wrap{
+  border:2px solid var(--blue);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+/* 🔷 Tableau */
+table{
+  width:100%;
+  table-layout:fixed;
+}
+
+/* 🔷 Bordures internes NOIRES */
+.table-gray thead th,
+.table-gray tbody td{
+  padding:6px 8px;
+  font-size:13px;
+  line-height:1.2;
+  border-color: var(--black) !important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  vertical-align:top;
+}
+
+.table-gray thead th{ border-bottom:1px solid var(--black); }
+.table-gray tbody td{ border-top:1px solid var(--black); }
+.table-cols thead th, .table-cols tbody td{ border-left:1px solid var(--black); }
+.table-cols thead th:first-child, .table-cols tbody td:first-child{ border-left:none; }
+
+/* 🔷 Dates sur une ligne */
+.col-date{ white-space:nowrap; }
+
+/* 🔷 Largeurs */
+.w-expediteur{ width:11%; }
+.w-objet{ width:18%; }
+.w-annotations{ width:10%; }
+.w-date{ width:8%; }
+.w-retour{ width:8%; }
+.w-objet-retour{ width:14%; }
+
+/* 🔷 Colonnes texte */
+.w-expediteur,.w-objet,.w-annotations,.w-objet-retour{
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+
+/* 🔷 Boutons actions */
+.btn-sm{
+  padding:4px 6px;
+  font-size:11px;
+}
+
+/* 🔷 Pagination */
+.pagination-bar{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.pagination-bar a{
+  background:var(--brown);
+  border:1px solid var(--brown);
+  color:#fff;
+  font-weight:700;
+  padding:6px 10px;
+  border-radius:8px;
+  text-decoration:none;
+  font-size:13px;
+}
+.pagination-bar a:hover{ filter:brightness(.95); }
+
+.pagination-bar .disabled{
+  background:#e5e7eb;
+  border-color:#9ca3af;
+  color:#6b7280;
+  font-weight:700;
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:13px;
+  pointer-events:none;
+}
+
+.pagination-bar .current{
+  background:#111827;
+  border:1px solid #111827;
+  color:#fff;
+  font-weight:700;
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:13px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card list-card">
+
+  <h2 class="page-title">Documents entrants</h2>
+
+  <!-- ✅ Tous les boutons alignés sur une même ligne -->
+  <div class="buttons-bar">
+    <a class="btn btn-kin btn-bold" href="{% url 'documents:entrants_create_kin' %}">+ Nouveau Kinshasa</a>
+    <a class="btn btn-prov btn-bold" href="{% url 'documents:entrants_create_prov' %}">+ Nouveau Province</a>
+    <a class="btn btn-dashboard btn-bold" href="{% url 'documents:dashboard' %}">Tableau de bord</a>
+
+    <a class="btn btn-pdf-kin btn-bold" target="_blank"
+       href="{% url 'documents:pdf_entrants_kin_traites' %}">
+      PDF Kin traités
+    </a>
+
+    <a class="btn btn-pdf-kin btn-bold" target="_blank"
+       href="{% url 'documents:pdf_entrants_kin_non_traites' %}">
+      PDF Kin non traités
+    </a>
+
+    <a class="btn btn-pdf-prov btn-bold" target="_blank"
+       href="{% url 'documents:pdf_entrants_prov_traites' %}">
+      PDF Prov traités
+    </a>
+
+    <a class="btn btn-pdf-prov btn-bold" target="_blank"
+       href="{% url 'documents:pdf_entrants_prov_non_traites' %}">
+      PDF Prov non traités
+    </a>
+  </div>
+
+  {# ✅ Barre de recherche + filtres à droite (dans le même encadrement) #}
+  <form method="get" class="search-bar">
+
+    {# ✅ Conserver le filtre prov lors d'une recherche #}
+    {% if request.GET.prov %}
+      <input type="hidden" name="prov" value="{{ request.GET.prov }}">
+    {% endif %}
+
+    <div class="search-field">
+      <label for="numero_entree">N° entrée</label>
+      <input
+        type="text"
+        id="numero_entree"
+        name="numero_entree"
+        value="{{ request.GET.numero_entree|default:'' }}"
+        placeholder="Ex : 2026/015"
+      >
+    </div>
+
+    <div class="search-field" style="min-width:280px;">
+      <label for="objet">Objet</label>
+      <input
+        type="text"
+        id="objet"
+        name="objet"
+        value="{{ request.GET.objet|default:'' }}"
+        placeholder="Mot clé dans l'objet…"
+      >
+    </div>
+
+    <div class="search-actions">
+      <button type="submit" class="btn-search">🔎 Rechercher</button>
+      <a class="btn-reset" href="{% url 'documents:entrants_list' %}">↩ Réinitialiser</a>
+    </div>
+
+    <!-- ✅ Filtres déplacés ici (à l’extrême droite) -->
+    <div class="search-filters">
+      <a href="{% url 'documents:entrants_list' %}" class="{% if not request.GET.prov %}active{% endif %}">Tous</a>
+      <a href="{% url 'documents:entrants_list' %}?prov=KIN" class="{% if request.GET.prov == 'KIN' %}active{% endif %}">Kinshasa</a>
+      <a href="{% url 'documents:entrants_list' %}?prov=PROV" class="{% if request.GET.prov == 'PROV' %}active{% endif %}">Province</a>
+    </div>
+
+  </form>
+
+  <!-- ✅ TABLEAU -->
+  <div class="table-wrap">
+    <table class="table table-gray table-cols">
+      <thead>
+        <tr>
+          <th class="text-center">N° Ord</th>
+          <th class="text-center">N° entrée</th>
+          <th class="text-center col-date w-date">Date</th>
+          <th class="text-center w-expediteur">Expéditeur</th>
+          <th class="text-center w-objet">Objet</th>
+          <th class="text-center">Prov.</th>
+          <th class="text-center">Dest.</th>
+          <th class="text-center w-annotations">Annotations</th>
+          <th class="text-center col-date w-retour">Date retour</th>
+          <th class="text-center w-objet-retour">Objet retour</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="text-center">{{ r.numero_ordre }}</td>
+          <td class="text-center">{{ r.numero_entree }}</td>
+          <td class="text-center col-date w-date">{{ r.date_reception|date:"d/m/Y" }}</td>
+          <td class="w-expediteur">{{ r.expediteur }}</td>
+          <td class="w-objet">{{ r.objet }}</td>
+          <td>{{ r.get_nature_document_display }}</td>
+          <td>{{ r.destinataire }}</td>
+          <td class="w-annotations">{{ r.annotations_autorite }}</td>
+
+          <td class="text-center col-date w-retour">
+            {% if r.date_document_retourne %}
+              {{ r.date_document_retourne|date:"d/m/Y" }}
+            {% else %}—{% endif %}
+          </td>
+
+          <td class="w-objet-retour">{{ r.objet_document_retourne|default:"—" }}</td>
+
+          <td class="text-center">
+            <a class="btn btn-primary btn-sm" href="{% url 'documents:entrants_update' r.pk %}">✏</a>
+            <form method="post" action="{% url 'documents:entrants_delete' r.pk %}" style="display:inline"
+                  onsubmit="return confirm('Supprimer ce document ?');">
+              {% csrf_token %}
+              <button class="btn btn-danger btn-sm" type="submit">🗑</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="11" class="text-center">Aucun enregistrement</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ PAGINATION -->
+  {% if page_obj %}
+  <div class="pagination-bar">
+
+    {% if page_obj.has_previous %}
+      <a href="?page=1&numero_entree={{ request.GET.numero_entree|urlencode }}&objet={{ request.GET.objet|urlencode }}{% if request.GET.prov %}&prov={{ request.GET.prov|urlencode }}{% endif %}">⏮ Première</a>
+      <a href="?page={{ page_obj.previous_page_number }}&numero_entree={{ request.GET.numero_entree|urlencode }}&objet={{ request.GET.objet|urlencode }}{% if request.GET.prov %}&prov={{ request.GET.prov|urlencode }}{% endif %}">◀ Précédent</a>
+    {% else %}
+      <span class="disabled">⏮ Première</span>
+      <span class="disabled">◀ Précédent</span>
+    {% endif %}
+
+    <span class="current">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&numero_entree={{ request.GET.numero_entree|urlencode }}&objet={{ request.GET.objet|urlencode }}{% if request.GET.prov %}&prov={{ request.GET.prov|urlencode }}{% endif %}">Suivant ▶</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}&numero_entree={{ request.GET.numero_entree|urlencode }}&objet={{ request.GET.objet|urlencode }}{% if request.GET.prov %}&prov={{ request.GET.prov|urlencode }}{% endif %}">Dernière ⏭</a>
+    {% else %}
+      <span class="disabled">Suivant ▶</span>
+      <span class="disabled">Dernière ⏭</span>
+    {% endif %}
+
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

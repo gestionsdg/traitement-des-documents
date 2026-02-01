@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Rapport d'activités — mois {{ de_d }}{{ mois_label }} {{ annee }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  :root{
+    --border:#9CA3AF;
+    --border-dark:#6B7280;
+  }
+
+  @page {
+    size: A4 landscape;
+    margin: 14mm 14mm 16mm 14mm;
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 14px auto;
+    padding: 14px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+
+  .head {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .head h1 {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    text-decoration: underline;
+  }
+  .head-actions { justify-self: end; }
+
+  .filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+  .filters label strong { font-weight: 800; }
+
+  select, button, .btn-brown, .btn {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+  }
+  select:focus, button:focus, .btn-brown:focus, .btn:focus {
+    outline: none;
+    border-color: var(--border-dark);
+    box-shadow: 0 0 0 2px rgba(107,114,128,.15);
+  }
+
+  .btn { display:inline-block; line-height:1; text-decoration:none; cursor:pointer; transition:filter .15s ease; }
+  .btn-bold { font-weight:700; color:#fff; }
+
+  .btn-filter { background:#16a34a; border-color:#16a34a; color:#fff; }
+  .btn-filter:hover { filter:brightness(.95); }
+
+  .btn-print { background:#2563eb; border-color:#2563eb; color:#fff; }
+  .btn-print:hover { filter:brightness(.95); }
+
+  .btn-brown { background:#6b4f3a; color:#fff; font-weight:700; }
+
+  .btn-gray { background:#6B7280; border-color:#6B7280; color:#fff; }
+  .btn-gray:hover { filter:brightness(.95); }
+
+  .actions { display: flex; gap: 8px; }
+
+  /* ✅ KPI : on passe à 5 cartes */
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+  .kpi {
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px; text-align: center;
+  }
+  .kpi h3 { font-size: 13px; margin: 0 0 6px 0; color: #374151; font-weight: 700; }
+  .kpi .val { font-size: 22px; font-weight: 800; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid var(--border); padding: 8px 10px; }
+  thead th { background: #f9fafb; }
+
+  @media print {
+    nav, header, footer, .filters, .actions, .head-actions { display: none !important; }
+    .wrap { box-shadow: none; border: 1px solid #000; }
+  }
+
+  /* ✅ Sur petit écran, on évite que 5 cartes soient trop serrées */
+  @media (max-width: 900px){
+    .kpis{ grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <div class="head">
+    <h1>Rapport d’activités du mois {{ de_d }}{{ mois_label }} {{ annee }}</h1>
+
+    <!-- Filtres -->
+    <form method="get" class="filters">
+      <label>
+        <strong>Mois</strong>
+        <select name="mois">
+          {% for v, lbl in MOIS %}
+            <option value="{{ v }}" {% if v == mois %}selected{% endif %}>{{ lbl }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <strong>Année</strong>
+        <select name="annee">
+          {% for y in annees %}
+            <option value="{{ y }}" {% if y == annee %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-filter btn-bold">Filtrer</button>
+        <a class="btn-brown" href="{% url 'documents:rapport_activites_mensuel_pdf' %}?annee={{ annee }}&mois={{ mois }}">🖨️ Version PDF</a>
+        <button type="button" class="btn btn-print btn-bold" onclick="window.print()">Imprimer</button>
+      </div>
+    </form>
+
+    <!-- Bouton retour à l'extrême droite -->
+    <div class="head-actions">
+      <a class="btn btn-gray btn-bold" href="{% url 'documents:dashboard' %}">↩ Retour au Tableau de bord</a>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <h3>Documents reçus / Provinces</h3>
+      <div class="val">{{ prov }}</div>
+    </div>
+    <div class="kpi">
+      <h3>Documents reçus / Kinshasa</h3>
+      <div class="val">{{ kin }}</div>
+    </div>
+
+    {# ✅ AJOUT : Documents traités #}
+    <div class="kpi">
+      <h3>Documents traités</h3>
+      <div class="val">{{ traites }}</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Total documents reçus</h3>
+      <div class="val">{{ total_recus }}</div>
+    </div>
+    <div class="kpi">
+      <h3>Courriers signés et expédiés par Direction Générale</h3>
+      <div class="val">{{ signes }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

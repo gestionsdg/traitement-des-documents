@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}{% if instance %}Modifier document entrant{% else %}Nouveau document entrant{% endif %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .entrant-form-card{ border:2px solid var(--primary); }
+
+  .title-new{
+    text-align:center; text-decoration:underline;
+    font-size:24px; font-weight:700; margin:0 0 10px;
+  }
+
+  .btn-lg{ font-size:16px; padding:12px 18px; }
+  .btn-bold{ font-weight:700; color:#fff; }
+
+  :root{ --brown:#8b4513; }
+
+  .btn-retour{ background:#374151; border-color:#374151; color:#fff; }
+  .btn-retour:hover{ filter:brightness(.95); }
+
+  .btn-liste{ background:var(--success); border-color:var(--success); color:#fff; }
+  .btn-liste:hover{ filter:brightness(.95); }
+
+  .btn-annuler{ background:var(--brown); border-color:var(--brown); color:#fff; }
+  .btn-annuler:hover{ filter:brightness(.95); }
+
+  form label{ font-size:15px; font-weight:700; }
+  form input[type="text"],
+  form input[type="date"],
+  form select,
+  form textarea{
+    font-size:15px; padding:12px 14px;
+  }
+
+  /* Grille lisible en 2 colonnes sur desktop */
+  .form-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap:14px;
+  }
+  @media (max-width: 800px){
+    .form-grid{ grid-template-columns: 1fr; }
+  }
+
+  .field-block{ display:flex; flex-direction:column; }
+  .field-errors{ color:#b91c1c; font-size:13px; margin-top:4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card entrant-form-card">
+  <div class="toolbar" style="justify-content:space-between">
+    <h2 class="title-new">
+      {% if instance %}Modifier document entrant{% else %}Nouveau document entrant{% endif %}
+    </h2>
+    <div class="toolbar" style="gap:8px">
+      <a class="btn btn-retour btn-lg btn-bold" href="{% url 'documents:dashboard' %}">← Retour au tableau de bord</a>
+      <a class="btn btn-liste btn-lg btn-bold" href="{% url 'documents:entrants_list' %}">Liste des entrants</a>
+    </div>
+  </div>
+
+  <!-- ✅ On garde enctype car on conserve le champ fichier -->
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-grid">
+      <div class="field-block">
+        <label for="{{ form.numero_entree.id_for_label }}">N° entrée</label>
+        {{ form.numero_entree }}
+        {% if form.numero_entree.errors %}<div class="field-errors">{{ form.numero_entree.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block">
+        <label for="{{ form.date_reception.id_for_label }}">Date réception</label>
+        {{ form.date_reception }}
+        {% if form.date_reception.errors %}<div class="field-errors">{{ form.date_reception.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block">
+        <label for="{{ form.expediteur.id_for_label }}">Expéditeur</label>
+        {{ form.expediteur }}
+        {% if form.expediteur.errors %}<div class="field-errors">{{ form.expediteur.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block">
+        <label for="{{ form.objet.id_for_label }}">Objet</label>
+        {{ form.objet }}
+        {% if form.objet.errors %}<div class="field-errors">{{ form.objet.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block">
+        <label for="{{ form.nature_document.id_for_label }}">Provenance</label>
+        {{ form.nature_document }}
+        {% if form.nature_document.errors %}<div class="field-errors">{{ form.nature_document.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block">
+        <label for="{{ form.destinataire.id_for_label }}">Destinataire</label>
+        {{ form.destinataire }}
+        {% if form.destinataire.errors %}<div class="field-errors">{{ form.destinataire.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block" style="grid-column:1 / -1">
+        <label for="{{ form.annotations_autorite.id_for_label }}">Annotations de l’autorité</label>
+        {{ form.annotations_autorite }}
+        {% if form.annotations_autorite.errors %}<div class="field-errors">{{ form.annotations_autorite.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block">
+        <label for="{{ form.date_document_retourne.id_for_label }}">Date document retourné</label>
+        {{ form.date_document_retourne }}
+        {% if form.date_document_retourne.errors %}<div class="field-errors">{{ form.date_document_retourne.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-block">
+        <label for="{{ form.objet_document_retourne.id_for_label }}">Objet document retourné</label>
+        {{ form.objet_document_retourne }}
+        {% if form.objet_document_retourne.errors %}<div class="field-errors">{{ form.objet_document_retourne.errors }}</div>{% endif %}
+      </div>
+
+      <!-- ✅ Pièce jointe conservée dans le formulaire -->
+      <div class="field-block" style="grid-column:1 / -1">
+        <label for="{{ form.piece_jointe.id_for_label }}">Pièce jointe</label>
+        {{ form.piece_jointe }}
+        {% if form.piece_jointe.errors %}<div class="field-errors">{{ form.piece_jointe.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-actions" style="justify-content:flex-end; margin-top:10px;">
+      <a class="btn btn-annuler btn-lg btn-bold" href="{% url 'documents:entrants_list' %}">Annuler</a>
+      <button class="btn btn-primary btn-lg btn-bold" type="submit">
+        {% if instance %}Mettre à jour{% else %}Enregistrer{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

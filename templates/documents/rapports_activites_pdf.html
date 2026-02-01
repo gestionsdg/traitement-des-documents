@@ -1,0 +1,155 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport d’activités — Exercice {{ annee }}</title>
+  <style>
+    :root{
+      --primary:#1F497D;        /* bleu CNSS */
+      --border:#6b7280;         /* gris bordures */
+      --thead:#f1f5f9;          /* gris clair en-tête */
+      --zebra:#fafafa;          /* zébrage léger */
+      --text:#0f172a;           /* texte */
+    }
+
+    /* WeasyPrint : A4 paysage + pagination */
+    @page {
+      size: A4 landscape;
+      margin: 12mm 10mm 14mm 10mm;
+      @bottom-right {
+        content: "Page " counter(page) " / " counter(pages);
+        font-size: 10px;
+        color: var(--primary);
+      }
+    }
+
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12.5px;
+      color: var(--text);
+      margin: 12px;
+      background: #fff;
+    }
+
+    /* Carte/encadrement global */
+    .report-card{
+      border: 2px solid var(--primary);
+      border-radius: 10px;
+      padding: 10px 12px 12px;
+    }
+
+    /* ✅ Titre : noir + gras + souligné */
+    .report-title{
+      text-align: center;
+      text-decoration: underline;
+      font-weight: 800;
+      font-size: 24px;
+      margin: 0 0 6px;
+      color: #000; /* noir au lieu du bleu CNSS */
+    }
+
+    .subtitle{
+      text-align: center;
+      color: #475569;
+      font-size: 12px;
+      margin: 0 0 12px;
+    }
+
+    /* Tableau */
+    .table-wrap{ border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    table{ width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
+
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    table, tr, td, th { page-break-inside: avoid; }
+    tr { page-break-after: auto; }
+
+    thead th{
+      background: var(--thead);
+      font-weight:700;
+      text-align:center;
+      padding:8px 6px;
+      border-bottom:1px solid var(--border);
+      border-left:1px solid var(--border);
+    }
+    thead th:first-child{ border-left:none; }
+
+    tbody td{
+      padding:8px 6px;
+      border-top:1px solid var(--border);
+      border-left:1px solid var(--border);
+      vertical-align:middle;
+      word-wrap:break-word;
+    }
+    tbody td:first-child{ border-left:none; }
+
+    /* Alignements */
+    .text-left{ text-align:left; }
+    .text-center{ text-align:center; }
+
+    /* Zébrage discret */
+    tbody tr:nth-child(odd):not(.totaux){ background: var(--zebra); }
+
+    /* Colonne "Total" en gras */
+    thead th:nth-child(4),
+    tbody td:nth-child(4){ font-weight: 800; }
+
+    /* Ligne de totaux mise en valeur */
+    .totaux td{
+      font-weight: 800;
+      background: #eef2ff;
+      border-top: 2px solid var(--primary);
+    }
+
+    /* Largeurs indicatives */
+    colgroup col:nth-child(1){ width: 13%; }  /* Mois */
+    colgroup col:nth-child(2){ width: 20%; }  /* Provinces */
+    colgroup col:nth-child(3){ width: 20%; }  /* Kinshasa */
+    colgroup col:nth-child(4){ width: 12%; }  /* Total */
+    colgroup col:nth-child(5){ width: 35%; }  /* Signés DG/DGA */
+  </style>
+</head>
+<body>
+  <div class="report-card">
+    <h2 class="report-title">Rapport d’activités de l’Exercice {{ annee }}</h2>
+    <div class="subtitle">Synthèse mensuelle des documents reçus et des courriers signés</div>
+
+    <div class="table-wrap">
+      <table>
+        <colgroup>
+          <col><col><col><col><col>
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="text-center">Mois</th>
+            <th class="text-center">Documents reçus / Provinces</th>
+            <th class="text-center">Documents reçus / Kinshasa</th>
+            <th class="text-center">Total</th>
+            <th class="text-center">Courriers signés et expédiés par la Direction Générale</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in lignes %}
+          <tr>
+            <td class="text-left">{{ row.mois }}</td>
+            <td class="text-center">{{ row.prov }}</td>
+            <td class="text-center">{{ row.kin }}</td>
+            <td class="text-center">{{ row.total_recus }}</td>
+            <td class="text-center">{{ row.signes }}</td>
+          </tr>
+          {% endfor %}
+          <tr class="totaux">
+            <td class="text-center">Totaux</td>
+            <td class="text-center">{{ totaux.prov }}</td>
+            <td class="text-center">{{ totaux.kin }}</td>
+            <td class="text-center">{{ totaux.recus }}</td>
+            <td class="text-center">{{ totaux.signes }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

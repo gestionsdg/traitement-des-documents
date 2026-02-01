@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>{% block title %}Traitement des documents{% endblock %}</title>
+
+  <!-- ✅ Responsive obligatoire -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root{
+      --bg:#f6f8fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --border:#e6eaf0; --primary:#2563eb; --primary-600:#1d4ed8;
+      --accent:#0ea5e9; --accent-600:#0284c7; --success:#16a34a; --danger:#dc2626;
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html, body{height:100%} /* ✅ utile pour les calculs vh */
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font:14px/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif
+    }
+
+    /* ✅ Container adaptatif + padding responsive */
+    .container{
+      max-width:1500px;
+      margin:0 auto;
+      padding:24px;
+      width:100%;
+    }
+    @media (max-width: 1024px){
+      .container{ padding:16px; }
+    }
+    @media (max-width: 640px){
+      .container{ padding:12px; }
+    }
+
+    /* ✅ Card responsive */
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:0 8px 24px rgba(2,6,23,.06);
+      padding:20px;
+      margin-bottom:20px;
+      width:100%;
+      max-width:100%;
+    }
+    h1,h2{margin:0 0 12px}
+    .muted{color:var(--muted)}
+
+    /* ✅ Toolbar */
+    .toolbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; margin-bottom:12px
+    }
+    @media (max-width: 640px){
+      .toolbar{ gap:8px; }
+      .toolbar > *{ width:100%; }
+      .toolbar .btn{ justify-content:center; }
+    }
+
+    /* ✅ Boutons : deviennent "full width" sur mobile */
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; border:1px solid var(--border);
+      background:#fff; color:var(--text); text-decoration:none;
+      border-radius:12px; cursor:pointer; transition:.15s;
+      max-width:100%;
+      white-space:nowrap;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 6px 14px rgba(2,6,23,.08)}
+    .btn-primary{background:var(--primary); border-color:var(--primary); color:#fff}
+    .btn-primary:hover{background:var(--primary-600)}
+    .btn-outline{background:#fff}
+    .btn-ghost{background:#fff; border-color:transparent}
+    .btn-danger{background:var(--danger); border-color:var(--danger); color:#fff}
+    @media (max-width: 640px){
+      .btn{ width:100%; justify-content:center; }
+    }
+
+    .grid{display:grid; gap:16px}
+    .grid-2{grid-template-columns: repeat(2, minmax(0,1fr))}
+    @media (max-width: 900px){ .grid-2{grid-template-columns:1fr} }
+
+    /* ===========================
+       ✅ TABLES RESPONSIVES
+       =========================== */
+    .table-wrap{
+      width:100%;
+      overflow-x:auto;
+      border:1px solid var(--border);
+      border-radius:12px;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:900px;
+    }
+    @media (max-width: 640px){
+      .table{ min-width:800px; }
+    }
+
+    .table thead th{
+      position:sticky; top:0; z-index:1; background:#f8fafc; font-weight:600;
+      text-align:center; padding:10px; border-bottom:1px solid var(--border)
+    }
+    .table tbody td{
+      padding:10px; border-top:1px solid var(--border); background:#fff;
+      max-width: 420px;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .table tbody tr:nth-child(odd) td{background:#fbfdff}
+    .table tbody tr:hover td{background:#f6fbff}
+
+    /* ✅ Utilitaires */
+    .text-center{text-align:center}
+    .text-left{text-align:left}
+    .nowrap{white-space:nowrap}
+    .break-anywhere{overflow-wrap:anywhere; word-break:break-word}
+
+    /* ===========================
+       ✅ FORMULAIRES RESPONSIVES
+       =========================== */
+    form .form-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:14px;
+      width:100%;
+    }
+    @media (max-width: 720px){
+      form .form-grid{ grid-template-columns:1fr; }
+    }
+    label{font-weight:600; font-size:13px}
+
+    input[type="text"], input[type="date"], input[type="number"], input[type="email"],
+    select, textarea{
+      width:100%;
+      max-width:100%;
+      padding:10px 12px;
+      border:1px solid #374151;
+      border-radius:10px;
+      background:#fff;
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color:#374151; box-shadow:0 0 0 3px rgba(55,65,81,.15);
+    }
+
+    .form-actions{
+      display:flex; gap:10px; justify-content:flex-end; margin-top:14px;
+      flex-wrap:wrap;
+    }
+    @media (max-width: 640px){
+      .form-actions{ justify-content:stretch; }
+      .form-actions .btn{ width:100%; }
+    }
+
+    .badge{
+      display:inline-block; padding:4px 10px; border-radius:999px;
+      font-size:12px; border:1px solid var(--border)
+    }
+    .badge-green{background:#ecfdf5; color:#065f46; border-color:#a7f3d0}
+    .badge-red{background:#fef2f2; color:#7f1d1d; border-color:#fecaca}
+
+    /* ===========================
+       MODE "PLEIN ÉCRAN" (fullbleed)
+       =========================== */
+    body.fullbleed{ background:#fff; }
+    body.fullbleed .container{
+      max-width:none; width:100%;
+      padding-left:16px; padding-right:16px;
+      padding-top:16px; padding-bottom:16px;
+    }
+    @media (min-width:1280px){
+      body.fullbleed .container{ padding-left:24px; padding-right:24px; }
+    }
+    body.fullbleed .card{
+      background:transparent; border:none; box-shadow:none;
+      padding:0; margin:0;
+    }
+
+    /* ===========================
+       ✅ Anti-débordement
+       =========================== */
+    .card-fit{
+      max-height: calc(100vh - 64px);
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    img, video, canvas, svg{ max-width:100%; height:auto; }
+    pre, code{ max-width:100%; overflow:auto; }
+    .card, .container{ min-width:0; }
+
+    @media (max-height: 900px){
+      .container{ padding-top:16px; padding-bottom:16px; }
+      .card{ padding:14px; }
+      form .form-grid{ gap:10px 14px; }
+      input[type="text"], input[type="date"], input[type="number"], input[type="email"],
+      select, textarea{ padding:8px 10px; }
+      .form-actions{ margin-top:10px; }
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

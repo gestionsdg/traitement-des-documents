@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Rapport hebdomadaire{% endblock %}
+
+{% block extra_head %}
+<style>
+  .title-main{
+    text-align:center;
+    font-size:20px;
+    font-weight:800;
+    text-decoration: underline;
+    text-underline-offset:4px;
+    margin:0 0 12px 0;
+  }
+
+  .card{
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  @media (max-width: 640px){
+    .card{ padding-left: 12px; padding-right: 12px; }
+  }
+
+  .box{
+    border:1px solid #374151;
+    border-radius:12px;
+    padding:14px;
+    background:#fff;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout: fixed;
+  }
+  th, td{
+    border:1px solid #6b7280;
+    padding:10px 10px;
+    vertical-align:middle;
+  }
+  th{
+    background:#e0f2fe;
+    text-align:center;
+    font-weight:800;
+  }
+  td.label{ font-weight:700; }
+  td.num{ text-align:center; font-weight:800; }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+
+  .note{ font-size:12px; color:#374151; margin-top:8px; }
+
+  .btn-export-pdf{
+    background: var(--success);
+    border-color: var(--success);
+    color:#fff;
+    font-weight:800;
+  }
+  .btn-export-pdf:hover{ filter:brightness(.95); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h2 class="title-main">
+    Rapport d’activités de la semaine du {{ lundi|date:"d/m/Y" }} au {{ vendredi|date:"d/m/Y" }}
+  </h2>
+
+  <div class="toolbar">
+    <form method="get" style="display:flex; gap:8px; align-items:end; flex-wrap:wrap;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-weight:700;">Début (lundi ou un jour de la semaine)</label>
+        <input type="date" name="debut" value="{{ debut_input }}">
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-weight:700;">Fin (vendredi) — optionnel</label>
+        <input type="date" name="fin" value="{{ fin_input }}">
+      </div>
+
+      <button class="btn btn-primary" type="submit" style="font-weight:700;">Afficher</button>
+
+      <a class="btn btn-export-pdf"
+         href="{% url 'documents:rapport_activites_hebdo_pdf' %}?debut={{ debut_input }}&fin={{ fin_input }}">
+        Export PDF
+      </a>
+
+      <a class="btn" style="background:#374151; border-color:#374151; color:#fff; font-weight:700;"
+         href="{% url 'documents:dashboard' %}">
+        Tableau de bord
+      </a>
+    </form>
+  </div>
+
+  <div class="box">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50%;">Documents reçus</th>
+          <th style="width:30%;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="label">Documents reçus / Province</td><td class="num">{{ recus_prov|default_if_none:0 }}</td></tr>
+        <tr><td class="label">Documents reçus / Kinshasa</td><td class="num">{{ recus_kin|default_if_none:0 }}</td></tr>
+
+        <tr><td class="label">Documents traités</td><td class="num">{{ traites|default_if_none:0 }}</td></tr>
+
+        <!-- ✅ AJOUT -->
+        <tr><td class="label">Documents non traités</td><td class="num">{{ non_traites|default_if_none:0 }}</td></tr>
+
+        <!-- ✅ Total reçus = Prov + Kin (traités inclus, donc pas additionnés) -->
+        <tr><td class="label"><b>Total documents reçus</b></td><td class="num"><b>{{ total_recus|default_if_none:0 }}</b></td></tr>
+
+        <tr>
+          <th colspan="2">Courriers signés et expédiés par la Direction Générale</th>
+        </tr>
+
+        <tr><td class="label">Chrono</td><td class="num">{{ dossiers_chrono|default_if_none:0 }}</td></tr>
+        <tr><td class="label">Gouvernement</td><td class="num">{{ dossiers_gouv|default_if_none:0 }}</td></tr>
+        <tr><td class="label">Paiement Prestations Sociales</td><td class="num">{{ dossiers_pps|default_if_none:0 }}</td></tr>
+        <tr><td class="label">Allocations Prénatales</td><td class="num">{{ dossiers_ap|default_if_none:0 }}</td></tr>
+		<tr><td class="label">Allocations Familiales</td><td class="num">{{ dossiers_af|default_if_none:0 }}</td></tr>
+		<tr><td class="label">Ordre de mission</td><td class="num">{{ dossiers_om|default_if_none:0 }}</td></tr>
+        <tr><td class="label">Décision</td><td class="num">{{ dossiers_decision|default_if_none:0 }}</td></tr>
+        
+		<tr><td class="label"><b>Total courriers signés et expédiés</b></td><td class="num"><b>{{ total_sortants|default_if_none:0 }}</b></td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      NB : Pour <b>Ordre de mission</b>, ton modèle n’a pas le champ <b>emetteur</b> ; le total correspond donc à <b>statut = SIGNE</b> sur la période.
+    </div>
+  </div>
+</div>
+{% endblock %}

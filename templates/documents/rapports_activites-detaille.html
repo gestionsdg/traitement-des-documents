@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Rapport annuel détaillé{% endblock %}
+
+{% block extra_head %}
+<style>
+  .title-main{
+    text-align:center;
+    font-size:20px;
+    font-weight:800;
+    text-decoration: underline;
+    text-underline-offset:4px;
+    margin:0 0 12px 0;
+  }
+
+  .card{
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  @media (max-width: 640px){
+    .card{ padding-left: 12px; padding-right: 12px; }
+  }
+
+  .box{
+    border:1px solid #374151;
+    border-radius:12px;
+    padding:14px;
+    background:#fff;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout: fixed;
+  }
+  th, td{
+    border:1px solid #6b7280;
+    padding:10px 10px;
+    vertical-align:middle;
+  }
+  th{
+    background:#e0f2fe;
+    text-align:center;
+    font-weight:800;
+  }
+  td.left{ text-align:left; font-weight:700; }
+  td.num{ text-align:center; font-weight:800; }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+
+  .btn-export-pdf{
+    background: var(--success);
+    border-color: var(--success);
+    color:#fff;
+    font-weight:800;
+  }
+  .btn-export-pdf:hover{ filter:brightness(.95); }
+
+  .note{ font-size:12px; color:#374151; margin-top:8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h2 class="title-main">
+    Rapport d’activités annuel détaillé de l’Exercice {{ annee }}
+  </h2>
+
+  <div class="toolbar">
+    <form method="get" style="display:flex; gap:8px; align-items:end; flex-wrap:wrap;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label style="font-weight:700;">Exercice (année)</label>
+        <select name="annee">
+          {% for y in annees %}
+            <option value="{{ y }}" {% if y == annee %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button class="btn btn-primary" type="submit" style="font-weight:700;">Afficher</button>
+
+      <!-- ✅ CORRIGÉ : lien PDF vers le rapport annuel DÉTAILLÉ -->
+      <a class="btn btn-export-pdf"
+         href="{% url 'documents:rapport_activites_detaille_pdf' %}?annee={{ annee }}">
+        Export PDF
+      </a>
+
+      <a class="btn" style="background:#374151; border-color:#374151; color:#fff; font-weight:700;"
+         href="{% url 'documents:dashboard' %}">
+        Tableau de bord
+      </a>
+    </form>
+  </div>
+
+  <div class="box">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%;">Mois</th>
+          <th style="width:12%;">Province</th>
+          <th style="width:12%;">Kinshasa</th>
+          <th style="width:12%;">Traités</th>
+          <th style="width:14%;">Non traités</th>
+          <th style="width:14%;">Total reçus</th>
+          <th style="width:16%;">Courriers signés DG</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for r in lignes %}
+          <tr>
+            <td class="left">{{ r.mois }}</td>
+            <td class="num">{{ r.prov|default_if_none:0 }}</td>
+            <td class="num">{{ r.kin|default_if_none:0 }}</td>
+            <td class="num">{{ r.traites|default_if_none:0 }}</td>
+            <td class="num">{{ r.non_traites|default_if_none:0 }}</td>
+            <td class="num">{{ r.total_recus|default_if_none:0 }}</td>
+            <td class="num">{{ r.signes|default_if_none:0 }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" style="text-align:center; font-weight:700;">Aucune donnée pour cet exercice.</td>
+          </tr>
+        {% endfor %}
+
+        <tr>
+          <th>Total</th>
+          <th>{{ totaux.prov|default_if_none:0 }}</th>
+          <th>{{ totaux.kin|default_if_none:0 }}</th>
+          <th>{{ totaux.traites|default_if_none:0 }}</th>
+          <th>{{ totaux.non_traites|default_if_none:0 }}</th>
+          <th>{{ totaux.recus|default_if_none:0 }}</th>
+          <th>{{ totaux.signes|default_if_none:0 }}</th>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      NB : Les courriers signés sont comptés sur <b>statut = SIGNE</b> ; si le champ <b>emetteur</b> existe, le filtre inclut <b>DG/DGA</b>.
+    </div>
+  </div>
+</div>
+{% endblock %}

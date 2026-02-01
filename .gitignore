@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+env/
+
+# Database locale
+db.sqlite3
+
+# Media uploads (stratégie Render ensuite)
+media/
+
+# Static collected
+staticfiles/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store

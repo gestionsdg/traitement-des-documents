@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport d'activités — mois {{ de_d }}{{ mois_label }} {{ annee }}</title>
+  <style>
+    /* ✅ Page paysage + pied de page */
+    @page{
+      size: A4 landscape;
+      margin: 14mm 14mm 16mm 14mm;
+
+      @bottom-right{
+        content: "Document imprimé le : {{ printed_at }}";
+        font-size: 10px;
+        color: #374151;
+      }
+    }
+
+    body{
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color:#111827;
+    }
+
+    /* ==========================================================
+       ✅ ESPACEMENTS PRINCIPAUX (faciles à ajuster)
+       - header -> titre
+       - titre -> cartes KPI
+       ========================================================== */
+    :root{
+      --space-header-title: 30px; /* 🔧 Espace entre logo/entête et le titre (augmente/diminue ici) */
+      --space-title-cards:  30px; /* 🔧 Espace entre le titre et les cartes (augmente/diminue ici) */
+    }
+
+    /* ✅ En-tête (logo + textes) au-dessus du titre */
+    .header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+
+      /* 🔧 Ajuste l'espace sous l'entête (si tu veux encore plus) */
+      margin-bottom: var(--space-header-title);
+    }
+
+    .bloc-logo{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px; /* 🔧 espace interne entre RDC / logo / CNSS */
+    }
+
+    .rdc{
+      font-weight:800;
+      font-size:12px;
+      text-align:center;
+      line-height:1.1;
+    }
+
+    .logo{
+      width:78px;
+      height:auto;
+      display:block;
+
+      /* 🔧 si tu veux un petit espace sous le logo uniquement */
+      margin-bottom: 2px;
+    }
+
+    .cnss{
+      font-weight:800;
+      font-size:12px;
+      text-align:center;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      line-height:1.1;
+    }
+
+    .service{
+      font-weight:800;
+      font-size:12px;
+      text-transform:uppercase;
+      color:#111;
+      margin-top:6px;
+      white-space:nowrap;
+    }
+
+    /* ✅ Titre centré */
+    h1{
+      font-size: 18px;
+
+      /* ✅ IMPORTANT :
+         - margin-top : espace au-dessus du titre
+         - margin-bottom : espace sous le titre
+         Ici, on laisse margin-top petit car l'espace est géré par .header (margin-bottom)
+      */
+      margin: 0 0 var(--space-title-cards) 0; /* 🔧 Espace entre titre et cartes */
+      text-align:center;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      font-weight: 800;
+    }
+
+    /* ✅ Grille KPI (6 cartes) */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+
+      /* ✅ On laisse 0 ici parce que l'espace est déjà géré par h1 (margin-bottom)
+         Si tu veux ajouter encore plus, tu peux mettre 5px/10px.
+      */
+      margin-top: 0; /* 🔧 espace supplémentaire optionnel */
+    }
+
+    .kpi{
+      border: 1px solid #9CA3AF;
+      border-radius: 12px;
+      padding: 14px 10px;
+      background:#fff;
+      min-height: 90px;
+    }
+
+    .kpi h3{
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      color:#374151;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .val{
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      color:#111827;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ✅ En-tête -->
+  <div class="header">
+    <div class="bloc-logo">
+      <div class="rdc">République Démocratique du Congo</div>
+      <img class="logo" src="{{ logo_path }}" alt="Logo CNSS">
+      <div class="cnss">Caisse Nationale de Sécurité Sociale</div>
+    </div>
+
+    <div class="service">SERVICE COURRIER/SDG</div>
+  </div>
+
+  <!-- ✅ Titre -->
+  <h1>Rapport d’activités du mois {{ de_d }}{{ mois_label }} {{ annee }}</h1>
+
+  <!-- ✅ KPI cards (comme ton modèle) -->
+  <div class="grid">
+    <div class="kpi">
+      <h3>Documents reçus / Provinces</h3>
+      <div class="val">{{ prov|default_if_none:0 }}</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Documents reçus / Kinshasa</h3>
+      <div class="val">{{ kin|default_if_none:0 }}</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Documents traités</h3>
+      <div class="val">{{ traites|default_if_none:0 }}</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Documents non traités</h3>
+      <div class="val">{{ non_traites|default_if_none:0 }}</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Total documents reçus</h3>
+      <div class="val">{{ total_recus|default_if_none:0 }}</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Courriers signés et expédiés par la Direction Générale</h3>
+      <div class="val">{{ signes|default_if_none:0 }}</div>
+    </div>
+  </div>
+
+</body>
+</html>

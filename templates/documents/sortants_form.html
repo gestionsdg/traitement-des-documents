@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}Nouveau ({{ label }}){% endblock %}
+
+{% block extra_head %}
+<style>
+  :root{
+    --brown:#8b4513;
+  }
+
+  .btn-bold{ font-weight:700; color:#fff; }
+
+  .btn-list{
+    background:var(--success);
+    border-color:var(--success);
+    color:#fff;
+  }
+  .btn-list:hover{ filter:brightness(.95); }
+
+  .back-wrap .btn{
+    background:#374151;
+    border-color:#374151;
+    color:#fff;
+    font-weight:700;
+  }
+  .back-wrap .btn:hover{ filter:brightness(.95); }
+
+  .btn-brown{
+    background:var(--brown);
+    border-color:var(--brown);
+    color:#fff;
+  }
+  .btn-brown:hover{ filter:brightness(.95); }
+
+  /* ✅ Grille 2 colonnes (comme ta capture) */
+  .form-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    align-items:start;
+  }
+
+  .field{ margin:0; }
+
+  .field label{
+    font-weight:600;
+    display:block;
+    margin-bottom:4px;
+  }
+
+  /* ✅ Harmoniser inputs/select/textarea */
+  .field input, .field select, .field textarea{
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  /* ✅ Erreurs sous le champ */
+  .field .errorlist{
+    margin:6px 0 0 0;
+    padding-left:18px;
+    color:#b91c1c;
+    font-weight:600;
+  }
+
+  /* ✅ Erreur globale du formulaire : pleine largeur */
+  .alert-danger{
+    grid-column: 1 / -1;
+  }
+
+  /* ✅ Champs cachés */
+  .hidden-wrap{ display:none; }
+
+  /* ✅ Objet + Personnes désignées : pleine largeur */
+  .field.full{
+    grid-column: 1 / -1;
+  }
+
+  /* ✅ Hauteur confortable des textarea */
+  .field textarea{
+    min-height: 140px;
+    resize: vertical;
+    line-height: 1.4;
+  }
+
+  /* ✅ Responsive : sur petit écran, tout passe en 1 colonne */
+  @media (max-width: 900px){
+    .form-grid{ grid-template-columns: 1fr; }
+    .field.full{ grid-column: auto; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="toolbar">
+    <h2 style="margin:0">Nouveau {{ label }}</h2>
+    <a class="btn btn-list btn-bold" href="{% url 'documents:sortants_list' nature %}">Liste {{ label }}</a>
+  </div>
+
+  <div class="back-wrap">
+    {% include "components/retour_dashboard.html" %}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-grid">
+
+      {# ✅ 1) Erreurs globales #}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ 2) Champs communs #}
+
+      {% if form.numero_registre %}
+        <div class="field">
+          {{ form.numero_registre.label_tag }}
+          {{ form.numero_registre }}
+          {{ form.numero_registre.errors }}
+        </div>
+      {% endif %}
+
+      {% if form.date_sortie %}
+        <div class="field">
+          {{ form.date_sortie.label_tag }}
+          {{ form.date_sortie }}
+          {{ form.date_sortie.errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ Objet : textarea + pleine largeur #}
+      {% if form.objet %}
+        <div class="field full">
+          {{ form.objet.label_tag }}
+          {{ form.objet }}
+          {{ form.objet.errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ Destinataire (= Personne(s) désigné(es) pour ordre-mission) : textarea + pleine largeur #}
+      {% if form.destinataire %}
+        <div class="field full">
+          {{ form.destinataire.label_tag }}
+          {{ form.destinataire }}
+          {{ form.destinataire.errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ 3) Champs spécifiques Ordre de mission #}
+      {% if form.destination_mission %}
+        <div class="field">
+          {{ form.destination_mission.label_tag }}
+          {{ form.destination_mission }}
+          {{ form.destination_mission.errors }}
+        </div>
+      {% endif %}
+
+      {% if form.nombre_jours %}
+        <div class="field">
+          {{ form.nombre_jours.label_tag }}
+          {{ form.nombre_jours }}
+          {{ form.nombre_jours.errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ Statut : pour Ordre de mission, on le garde avec les champs mission (important pour les rapports) #}
+      {% if nature == "ordre-mission" and form.statut %}
+        <div class="field">
+          {{ form.statut.label_tag }}
+          {{ form.statut }}
+          {{ form.statut.errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ 4) Champs optionnels (autres sortants) #}
+      {% if form.emetteur %}
+        <div class="field">
+          {{ form.emetteur.label_tag }}
+          {{ form.emetteur }}
+          {{ form.emetteur.errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ Statut : autres sortants (Chrono, Décision, etc.) #}
+      {% if nature != "ordre-mission" and form.statut %}
+        <div class="field">
+          {{ form.statut.label_tag }}
+          {{ form.statut }}
+          {{ form.statut.errors }}
+        </div>
+      {% endif %}
+
+      {# ✅ 5) Hidden fields #}
+      <div class="hidden-wrap">
+        {% for hidden in form.hidden_fields %}
+          {{ hidden }}
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <a class="btn btn-brown btn-bold" href="{% url 'documents:sortants_list' nature %}">Annuler</a>
+      <button class="btn btn-primary btn-bold" type="submit">Enregistrer</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
