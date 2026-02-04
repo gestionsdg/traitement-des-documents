@@ -18,6 +18,11 @@ from django.utils import timezone  # ✅ ajouté
 # ✅ AJOUT (pour construire l’URL absolue du logo)
 from django.contrib.staticfiles.storage import staticfiles_storage
 
+# ✅ AJOUT : pour servir un fichier de manière sécurisée
+import os
+from django.conf import settings
+from django.http import FileResponse, Http404
+
 from .models import (
     DocumentEntrant,
     Chrono, OrdreMission, Gouvernement, Decision,
@@ -29,6 +34,55 @@ from .forms import DocumentEntrantForm
 
 def model_has_field(Model, field_name: str) -> bool:
     return any(f.name == field_name for f in Model._meta.get_fields())
+
+
+# ==========================================================
+# ✅ Téléchargement sécurisé de pièce jointe (Entrants)
+# ==========================================================
+@login_required(login_url='connexion')
+def secure_entrant_attachment(request, pk: int):
+    """
+    Sert la pièce jointe d'un DocumentEntrant de manière sécurisée :
+    - accès uniquement si connecté
+    - vérifie que le fichier existe
+    - empêche les chemins anormaux (traversal)
+    """
+    doc = get_object_or_404(DocumentEntrant, pk=pk)
+
+    if not getattr(doc, "piece_jointe", None):
+        raise Http404("Aucune pièce jointe.")
+
+    if not doc.piece_jointe.name:
+        raise Http404("Aucune pièce jointe.")
+
+    # Chemin absolu du fichier sur disque
+    try:
+        file_path = doc.piece_jointe.path
+    except Exception:
+        # Certains storages peuvent ne pas exposer .path
+        raise Http404("Fichier indisponible.")
+
+    # Sécurité : s'assurer que le fichier est dans MEDIA_ROOT
+    media_root = os.path.abspath(getattr(settings, "MEDIA_ROOT", "") or "")
+    abs_file_path = os.path.abspath(file_path)
+
+    if not media_root or not abs_file_path.startswith(media_root + os.sep):
+        # protège contre chemins hors MEDIA_ROOT
+        raise Http404("Accès refusé.")
+
+    if not os.path.exists(abs_file_path):
+        raise Http404("Fichier introuvable.")
+
+    # Nom de fichier "propre" pour le navigateur
+    filename = os.path.basename(doc.piece_jointe.name)
+
+    # Option : forcer "attachment" pour téléchargement (plus sûr)
+    # Si tu veux afficher PDF dans navigateur, remplace as_attachment=True par False.
+    return FileResponse(
+        open(abs_file_path, "rb"),
+        as_attachment=True,
+        filename=filename,
+    )
 
 
 # --- Dashboard ---
@@ -677,10 +731,8 @@ def rapport_activites_mensuel_pdf(request):
     mois_label = _mois_label_fr(mois)
     de_d = _de_ou_d(mois_label)
 
-    # ✅ footer
     printed_at = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
 
-    # ✅ logo (URL absolue)
     rel_logo = "documents/img/logo_cnss.png"
     logo_url = staticfiles_storage.url(rel_logo)
     logo_path = request.build_absolute_uri(logo_url)
@@ -701,6 +753,7 @@ def rapport_activites_mensuel_pdf(request):
     resp = HttpResponse(pdf, content_type="application/pdf")
     resp["Content-Disposition"] = f'inline; filename="{filename}"'
     return resp
+
 
 # =========================
 # ✅ Rapport d'activités Hebdomadaire (Lundi -> Vendredi)

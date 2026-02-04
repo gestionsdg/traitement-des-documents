@@ -17,6 +17,13 @@ urlpatterns = [
     # =========================
     path("entrants/", views.entrants_list, name="entrants_list"),
 
+    # ✅ Téléchargement sécurisé de la pièce jointe (login requis)
+    path(
+        "entrants/<int:pk>/piece-jointe/",
+        views.secure_entrant_attachment,
+        name="entrant_piece_jointe",
+    ),
+
     # Nouveaux formulaires séparés
     path("entrants/kin/nouveau/", views.entrants_create_kin, name="entrants_create_kin"),
     path("entrants/prov/nouveau/", views.entrants_create_prov, name="entrants_create_prov"),

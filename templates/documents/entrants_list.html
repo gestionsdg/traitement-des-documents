@@ -224,6 +224,7 @@ table{
 .w-date{ width:8%; }
 .w-retour{ width:8%; }
 .w-objet-retour{ width:14%; }
+.w-pj{ width:5%; }   /* ✅ PJ */
 
 /* 🔷 Colonnes texte */
 .w-expediteur,.w-objet,.w-annotations,.w-objet-retour{
@@ -236,6 +237,22 @@ table{
   padding:4px 6px;
   font-size:11px;
 }
+
+/* ✅ Bouton PJ */
+.btn-attach{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:4px 6px;
+  border-radius:8px;
+  background:#111827;
+  border:1px solid #111827;
+  color:#fff;
+  text-decoration:none;
+  font-weight:700;
+  font-size:12px;
+}
+.btn-attach:hover{ filter:brightness(.95); }
 
 /* 🔷 Pagination */
 .pagination-bar{
@@ -372,6 +389,7 @@ table{
           <th class="text-center w-annotations">Annotations</th>
           <th class="text-center col-date w-retour">Date retour</th>
           <th class="text-center w-objet-retour">Objet retour</th>
+          <th class="text-center w-pj">PJ</th>  {# ✅ AJOUT #}
           <th class="text-center">Actions</th>
         </tr>
       </thead>
@@ -396,6 +414,16 @@ table{
 
           <td class="w-objet-retour">{{ r.objet_document_retourne|default:"—" }}</td>
 
+          {# ✅ Pièce jointe : lien sécurisé (pas /media/) #}
+          <td class="text-center w-pj">
+            {% if r.piece_jointe %}
+              <a class="btn-attach" title="Télécharger la pièce jointe"
+                 href="{% url 'documents:entrant_piece_jointe' r.pk %}">📎</a>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+
           <td class="text-center">
             <a class="btn btn-primary btn-sm" href="{% url 'documents:entrants_update' r.pk %}">✏</a>
             <form method="post" action="{% url 'documents:entrants_delete' r.pk %}" style="display:inline"
@@ -406,7 +434,7 @@ table{
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="11" class="text-center">Aucun enregistrement</td></tr>
+        <tr><td colspan="12" class="text-center">Aucun enregistrement</td></tr>
         {% endfor %}
       </tbody>
     </table>
