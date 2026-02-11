@@ -9,36 +9,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ============================================================
 #  Sécurité & Debug (local/LAN vs Render/Production)
 # ============================================================
-# IMPORTANT :
-# - En production (Render), on met SECRET_KEY dans les variables d'environnement.
-# - En local, une valeur par défaut est tolérée, mais ne doit jamais être utilisée en prod.
 SECRET_KEY = os.environ.get(
     "SECRET_KEY",
     "dev-secret-key-only-change-me"
 )
 
-# DEBUG piloté par variable d'environnement :
-# - Local : DEBUG=True possible
-# - Render : DEBUG=False obligatoire
 DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
 
 # ============================================================
 #  Hôtes autorisés / CSRF (important pour Render)
 # ============================================================
-# En prod, ALLOWED_HOSTS doit être fourni (ex: traitement-des-documents.onrender.com)
-# Format env : ALLOWED_HOSTS=traitement-des-documents.onrender.com
 if DEBUG:
-    # Tes hôtes LAN + localhost
     ALLOWED_HOSTS = ["192.168.1.74", "localhost", "127.0.0.1", "hp", "DESKTOP-U3PNFME"]
     CSRF_TRUSTED_ORIGINS = []
 else:
-    # Render/Prod (sécurisé)
     ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
     CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
 
-# --- Apps ---
+# ============================================================
+#  Apps
+# ============================================================
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -50,11 +42,11 @@ INSTALLED_APPS = [
 ]
 
 
-# --- Middlewares ---
+# ============================================================
+#  Middlewares
+# ============================================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-
-    # ✅ WhiteNoise : sert les fichiers statiques en production (admin CSS/JS)
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -68,11 +60,13 @@ MIDDLEWARE = [
 ROOT_URLCONF = "traitement_des_documents.urls"
 
 
-# --- Templates ---
+# ============================================================
+#  Templates
+# ============================================================
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # templates/login, etc.
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -91,7 +85,6 @@ WSGI_APPLICATION = "traitement_des_documents.wsgi.application"
 # ============================================================
 #  Base de données : SQLite en local / Postgres sur Render
 # ============================================================
-# Render fournit DATABASE_URL. En local tu restes sur SQLite.
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
@@ -101,7 +94,9 @@ DATABASES = {
 }
 
 
-# --- Validation des mots de passe ---
+# ============================================================
+#  Validation des mots de passe
+# ============================================================
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -110,7 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# --- Internationalisation ---
+# ============================================================
+#  Internationalisation
+# ============================================================
 LANGUAGE_CODE = "fr"
 TIME_ZONE = "Africa/Kinshasa"
 USE_I18N = True
@@ -121,22 +118,15 @@ USE_TZ = True
 #  Statiques & médias
 # ============================================================
 STATIC_URL = "/static/"
-
-# Tes statiques du projet (ex: static/images/Logo_cnss.jpg)
 STATICFILES_DIRS = [BASE_DIR / "static"]
-
-# collectstatic -> dossier final
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# ✅ Django 4.2+ / 5+ : utiliser STORAGES (recommandé)
-# WhiteNoise : manifest + compression
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     }
 }
 
-# Médias (uploads)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -149,6 +139,24 @@ LOGIN_REDIRECT_URL = "documents:dashboard"
 LOGOUT_REDIRECT_URL = "connexion"
 
 
+# ============================================================
+#  SESSIONS : Sécurité (ta demande)
+# ============================================================
+# ✅ Force la reconnexion à la "réouverture" (fermeture du navigateur => session morte)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# ✅ Durée max de session (surtout utile en production)
+# - si tu veux plus court, mets 15 min : 60*15
+SESSION_COOKIE_AGE = 60 * 30  # 30 minutes
+
+# ✅ Prolonge la session à chaque requête (si l’utilisateur reste actif)
+SESSION_SAVE_EVERY_REQUEST = True
+
+# ✅ Recommandé
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+
+
 # --- Clé primaire par défaut ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -157,15 +165,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 #  Sécurité production (uniquement si DEBUG=False)
 # ============================================================
 if not DEBUG:
-    # Force HTTPS
     SECURE_SSL_REDIRECT = True
 
-    # Cookies sécurisés
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
 
-    # HSTS (au début on met 60 sec pour tester, ensuite on montera à 31536000)
+    # HSTS
     SECURE_HSTS_SECONDS = 60
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
