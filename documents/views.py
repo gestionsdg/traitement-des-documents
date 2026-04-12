@@ -519,7 +519,7 @@ def rapport_activites_detaille_pdf(request):
 
     printed_at = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
 
-    rel_logo = "documents/img/logo_cnss.png"
+    rel_logo = "images/Logo_cnss.jpg"
     logo_url = staticfiles_storage.url(rel_logo)
     logo_path = request.build_absolute_uri(logo_url)
 
