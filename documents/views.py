@@ -501,10 +501,15 @@ def rapport_activites_detaille(request):
     }
     return render(request, "documents/rapports_activites-detaille.html", contexte)
 
-
 @login_required(login_url='connexion')
 def rapport_activites_detaille_pdf(request):
+    import datetime
+    from pathlib import Path
     from weasyprint import HTML
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+    from django.utils import timezone
+    from django.contrib.staticfiles import finders
 
     try:
         annee = int(request.GET.get("annee") or datetime.date.today().year)
@@ -519,9 +524,9 @@ def rapport_activites_detaille_pdf(request):
 
     printed_at = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
 
-    rel_logo = "images/Logo_cnss.jpg"
-    logo_url = staticfiles_storage.url(rel_logo)
-    logo_path = request.build_absolute_uri(logo_url)
+    # ✅ Recherche réelle du fichier dans les fichiers statiques
+    logo_file = finders.find("images/Logo_cnss.jpg")
+    logo_path = Path(logo_file).as_uri() if logo_file else ""
 
     context = {
         "annee": annee,
@@ -531,15 +536,21 @@ def rapport_activites_detaille_pdf(request):
         "logo_path": logo_path,
     }
 
-    html_string = render_to_string("documents/rapports_activites_detaille_pdf.html", context)
-    pdf = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
+    html_string = render_to_string(
+        "documents/rapports_activites_detaille_pdf.html",
+        context,
+        request=request,
+    )
+
+    pdf = HTML(
+        string=html_string,
+        base_url=request.build_absolute_uri("/")
+    ).write_pdf()
 
     filename = f"rapport_activites_detaille_{annee}.pdf"
     response = HttpResponse(pdf, content_type="application/pdf")
     response["Content-Disposition"] = f'inline; filename="{filename}"'
     return response
-
-
 # ==========================================================
 # ✅ Fonctions utilitaires MENSUEL (UNE SEULE VERSION)
 # ==========================================================
