@@ -105,8 +105,8 @@
       line-height:1.15;
     }
 
-    td.left{ text-align:left; font-weight:700; }
-    td.num{ text-align:center; font-weight:800; }
+    td.left{ text-align:left; font-weight:400; }
+    td.num{ text-align:center; font-weight:400; }
   </style>
 </head>
 
@@ -165,15 +165,15 @@
           </tr>
         {% endfor %}
 
-        <tr>
-          <th>Total</th>
-          <th>{{ totaux.prov|default_if_none:0 }}</th>
-          <th>{{ totaux.kin|default_if_none:0 }}</th>
-          <th>{{ totaux.traites|default_if_none:0 }}</th>
-          <th>{{ totaux.non_traites|default_if_none:0 }}</th>
-          <th>{{ totaux.recus|default_if_none:0 }}</th>
-          <th>{{ totaux.signes|default_if_none:0 }}</th>
-        </tr>
+        <tr class="total-row">
+			<td class="left">Total</td>
+			<td class="num">{{ totaux.prov|default_if_none:0 }}</td>
+			<td class="num">{{ totaux.kin|default_if_none:0 }}</td>
+			<td class="num">{{ totaux.traites|default_if_none:0 }}</td>
+			<td class="num">{{ totaux.non_traites|default_if_none:0 }}</td>
+			<td class="num">{{ totaux.recus|default_if_none:0 }}</td>
+			<td class="num">{{ totaux.signes|default_if_none:0 }}</td>
+		</tr>
       </tbody>
     </table>
   </div>
