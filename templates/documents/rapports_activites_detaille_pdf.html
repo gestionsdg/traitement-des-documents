@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="fr">
 <head>
@@ -123,9 +124,9 @@
 
     <div class="left-block">
 		<div class="etat">République Démocratique du Congo</div>
-		<img class="logo" src="file:///C:/traitement_des_documents/static/images/Logo_cnss.jpg" alt="Logo">
-		<div class="institution">Caisse Nationale de Sécurité Sociale</div>
-		</div>
+		<img class="logo" src="{% static 'images/Logo_cnss.jpg' %}" alt="Logo">
+    <div class="institution">Caisse Nationale de Sécurité Sociale</div>
+	</div>
 
     <div class="service">SERVICE COURRIER/SDG</div>
 
