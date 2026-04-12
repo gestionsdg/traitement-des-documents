@@ -107,6 +107,12 @@
 
     td.left{ text-align:left; font-weight:400; }
     td.num{ text-align:center; font-weight:400; }
+
+    /* ✅ AJOUT : ligne Total en gras */
+    .total-row td{
+      font-weight:800;
+    }
+
   </style>
 </head>
 
@@ -115,16 +121,12 @@
   <!-- ✅ En-tête -->
   <div class="header">
 
-    <!-- Bloc gauche -->
     <div class="left-block">
       <div class="etat">République Démocratique du Congo</div>
-
       <img class="logo" src="{{ logo_path }}" alt="Logo">
-
       <div class="institution">Caisse Nationale de Sécurité Sociale</div>
     </div>
 
-    <!-- Bloc droit -->
     <div class="service">SERVICE COURRIER/SDG</div>
 
   </div>
@@ -157,23 +159,18 @@
             <td class="num">{{ r.total_recus|default_if_none:0 }}</td>
             <td class="num">{{ r.signes|default_if_none:0 }}</td>
           </tr>
-        {% empty %}
-          <tr>
-            <td colspan="7" style="text-align:center; font-weight:700;">
-              Aucune donnée pour cet exercice.
-            </td>
-          </tr>
         {% endfor %}
 
         <tr class="total-row">
-			<td class="left">Total</td>
-			<td class="num">{{ totaux.prov|default_if_none:0 }}</td>
-			<td class="num">{{ totaux.kin|default_if_none:0 }}</td>
-			<td class="num">{{ totaux.traites|default_if_none:0 }}</td>
-			<td class="num">{{ totaux.non_traites|default_if_none:0 }}</td>
-			<td class="num">{{ totaux.recus|default_if_none:0 }}</td>
-			<td class="num">{{ totaux.signes|default_if_none:0 }}</td>
-		</tr>
+          <td class="left">Total</td>
+          <td class="num">{{ totaux.prov|default_if_none:0 }}</td>
+          <td class="num">{{ totaux.kin|default_if_none:0 }}</td>
+          <td class="num">{{ totaux.traites|default_if_none:0 }}</td>
+          <td class="num">{{ totaux.non_traites|default_if_none:0 }}</td>
+          <td class="num">{{ totaux.recus|default_if_none:0 }}</td>
+          <td class="num">{{ totaux.signes|default_if_none:0 }}</td>
+        </tr>
+
       </tbody>
     </table>
   </div>
