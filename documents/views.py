@@ -299,7 +299,6 @@ def _sortant_form_class(Model):
 
     return FormClass
 
-
 @login_required(login_url='connexion')
 def sortants_create(request, nature):
     Model, label = _get_sortant_model(nature)
@@ -315,7 +314,6 @@ def sortants_create(request, nature):
         form = FormClass()
 
     return render(request, "documents/sortants_form.html", {"form": form, "label": label, "nature": nature})
-
 
 @login_required(login_url='connexion')
 def sortants_update(request, nature, pk):
@@ -338,7 +336,6 @@ def sortants_update(request, nature, pk):
         {"form": form, "label": label, "nature": nature, "instance": obj},
     )
 
-
 @login_required(login_url='connexion')
 @require_POST
 def sortants_delete(request, nature, pk):
@@ -347,7 +344,6 @@ def sortants_delete(request, nature, pk):
     obj.delete()
     messages.success(request, f"{label} supprimé.")
     return redirect("documents:sortants_list", nature=nature)
-
 
 # =========================
 # ✅ Rapports (ANNUEL / MENSUEL / HEBDO)
@@ -365,7 +361,6 @@ SORTANT_MODELS = [
     AllocationsFamiliales, AllocationsPrenatales,
 ]
 
-
 def _annees_disponibles():
     years = set(d.year for d in DocumentEntrant.objects.dates("date_reception", "year"))
     for Model in SORTANT_MODELS:
@@ -374,7 +369,6 @@ def _annees_disponibles():
     if not years:
         years = {datetime.date.today().year}
     return sorted(years, reverse=True)
-
 
 def _entrants_traites_count(year: int, month: int) -> int:
     qs = DocumentEntrant.objects.filter(date_reception__year=year, date_reception__month=month)
@@ -387,7 +381,6 @@ def _entrants_traites_count(year: int, month: int) -> int:
         _ann_trim=Trim(F(field_name))
     ).exclude(_ann_trim="")
     return qs.count()
-
 
 def _count_sortants_signes_month(Model, year: int, month: int) -> int:
     if not model_has_field(Model, "date_sortie"):
@@ -405,13 +398,11 @@ def _count_sortants_signes_month(Model, year: int, month: int) -> int:
 
     return qs.count()
 
-
 def _compte_sortants_signes(year: int, month: int) -> int:
     total = 0
     for Model in SORTANT_MODELS:
         total += _count_sortants_signes_month(Model, year, month)
     return total
-
 
 def _compte_sortants_signes_detail(year: int, month: int) -> dict:
     dossiers_chrono = _count_sortants_signes_month(Chrono, year, month)
@@ -437,7 +428,6 @@ def _compte_sortants_signes_detail(year: int, month: int) -> dict:
         "dossiers_decision": dossiers_decision,
         "signes": total,
     }
-
 
 def _rapport_data(annee: int):
     lignes = []
@@ -474,7 +464,6 @@ def _rapport_data(annee: int):
             })
 
     return lignes, totaux
-
 
 # ==========================================================
 # ✅ NOUVEAUX RAPPORTS ANNUELS DÉTAILLÉS (HTML + PDF) — SEULS
@@ -632,10 +621,14 @@ def rapport_activites_mensuel_detaille(request):
 
     return render(request, "documents/rapport_activites_mensuel_detaille.html", data)
 
-
 @login_required(login_url='connexion')
 def rapport_activites_mensuel_detaille_pdf(request):
+    from pathlib import Path
     from weasyprint import HTML
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+    from django.utils import timezone
+    from django.contrib.staticfiles import finders
 
     today = timezone.localdate()
 
@@ -655,12 +648,11 @@ def rapport_activites_mensuel_detaille_pdf(request):
     data = _rapport_mensuel_data(annee, mois)
     mois_label = _mois_label_fr(mois)
     de_d = _de_ou_d(mois_label)
-
     printed_at = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
 
-    rel_logo = "documents/img/logo_cnss.png"
-    logo_url = staticfiles_storage.url(rel_logo)
-    logo_path = request.build_absolute_uri(logo_url)
+    # Logo statique fiable pour WeasyPrint
+    logo_file = finders.find("images/Logo_cnss.jpg")
+    logo_path = Path(logo_file).as_uri() if logo_file else ""
 
     data.update({
         "annee": annee,
@@ -671,15 +663,22 @@ def rapport_activites_mensuel_detaille_pdf(request):
         "logo_path": logo_path,
     })
 
-    html = render_to_string("documents/rapport_activites_mensuel_detaille_pdf.html", data)
-    pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf()
+    html = render_to_string(
+        "documents/rapport_activites_mensuel_detaille_pdf.html",
+        data,
+        request=request,
+    )
+
+    pdf = HTML(
+        string=html,
+        base_url=request.build_absolute_uri("/")
+    ).write_pdf()
 
     filename = f"rapport_activites_mensuel_detaille_{annee}_{mois:02d}.pdf"
-    resp = HttpResponse(pdf, content_type="application/pdf")
-    resp["Content-Disposition"] = f'inline; filename="{filename}"'
-    return resp
-
-
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response
+    
 # =========================
 # ✅ Rapport d'activités MENSUEL (anciens - à garder)
 # =========================

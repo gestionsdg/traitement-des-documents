@@ -62,13 +62,12 @@
   }
   .btn-export-pdf:hover{ filter:brightness(.95); }
 
-  /* ================== EN-TÊTE SERVICE + LOGO ================== */
   .report-header{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    margin: 0 0 10px 0;
+    margin:0 0 10px 0;
   }
   .report-header .logo{
     width:64px;
@@ -83,7 +82,6 @@
     white-space:nowrap;
   }
 
-  /* ================== PIED DE PAGE (impression) ================== */
   .print-footer{
     display:none;
     margin-top:10px;
@@ -102,10 +100,8 @@
 {% block content %}
 <div class="card">
 
-  <!-- ✅ En-tête: logo à gauche + service à droite -->
   <div class="report-header">
-    {# 🔁 Remplace le chemin par ton vrai logo static si besoin #}
-    <img class="logo" src="{% static 'documents/img/logo.png' %}" alt="Logo">
+    <img class="logo" src="{% static 'images/Logo_cnss.jpg' %}" alt="Logo CNSS">
     <div class="service-name">SERVICE COURRIER/SDG</div>
   </div>
 
@@ -135,7 +131,6 @@
 
       <button class="btn btn-primary" type="submit" style="font-weight:700;">Afficher</button>
 
-      {# ✅ Export du PDF du rapport mensuel DÉTAILLÉ #}
       <a class="btn btn-export-pdf"
          href="{% url 'documents:rapport_activites_mensuel_detaille_pdf' %}?annee={{ annee }}&mois={{ mois }}">
         Export PDF
@@ -152,17 +147,15 @@
     <table>
       <thead>
         <tr>
-          <th style="width:50%;">Documents reçus / traités</th>
+          <th style="width:70%;">Rubrique</th>
           <th style="width:30%;">Total</th>
         </tr>
       </thead>
       <tbody>
         <tr><td class="label">Documents reçus / Province</td><td class="num">{{ prov|default_if_none:0|default:0 }}</td></tr>
         <tr><td class="label">Documents reçus / Kinshasa</td><td class="num">{{ kin|default_if_none:0|default:0 }}</td></tr>
-
         <tr><td class="label">Documents traités</td><td class="num">{{ traites|default_if_none:0|default:0 }}</td></tr>
         <tr><td class="label">Documents non traités</td><td class="num">{{ non_traites|default_if_none:0|default:0 }}</td></tr>
-
         <tr><td class="label"><b>Total documents reçus</b></td><td class="num"><b>{{ total_recus|default_if_none:0|default:0 }}</b></td></tr>
 
         <tr>
@@ -176,14 +169,10 @@
         <tr><td class="label">Allocations Familiales</td><td class="num">{{ dossiers_af|default_if_none:0|default:0 }}</td></tr>
         <tr><td class="label">Ordre de mission</td><td class="num">{{ dossiers_om|default_if_none:0|default:0 }}</td></tr>
         <tr><td class="label">Décision</td><td class="num">{{ dossiers_decision|default_if_none:0|default:0 }}</td></tr>
-
         <tr><td class="label"><b>Total courriers signés et expédiés</b></td><td class="num"><b>{{ signes|default_if_none:0|default:0 }}</b></td></tr>
       </tbody>
     </table>
 
-    {# ✅ NB supprimé #}
-
-    <!-- ✅ Pied (visible uniquement à l'impression depuis le navigateur) -->
     <div class="print-footer">
       Document imprimé le : {% now "d/m/Y H:i" %}
     </div>
