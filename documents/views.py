@@ -712,15 +712,17 @@ def rapport_activites_mensuel(request):
 
     return render(request, "documents/rapport_activites_mensuel.html", data)
 
-
 @login_required(login_url='connexion')
 def rapport_activites_mensuel_pdf(request):
     """
-    ✅ PDF du rapport mensuel (ancien) - design KPI
-    - Ajoute printed_at pour le footer
-    - Ajoute logo_path (URL absolue) pour afficher le logo dans WeasyPrint
+    PDF du rapport mensuel (ancien) - design KPI
     """
+    from pathlib import Path
     from weasyprint import HTML
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
+    from django.utils import timezone
+    from django.contrib.staticfiles import finders
 
     today = timezone.localdate()
 
@@ -743,9 +745,9 @@ def rapport_activites_mensuel_pdf(request):
 
     printed_at = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
 
-    rel_logo = "documents/img/logo_cnss.png"
-    logo_url = staticfiles_storage.url(rel_logo)
-    logo_path = request.build_absolute_uri(logo_url)
+    # Logo statique fiable pour WeasyPrint
+    logo_file = finders.find("images/Logo_cnss.jpg")
+    logo_path = Path(logo_file).as_uri() if logo_file else ""
 
     data.update({
         "annee": annee,
@@ -756,13 +758,21 @@ def rapport_activites_mensuel_pdf(request):
         "logo_path": logo_path,
     })
 
-    html = render_to_string("documents/rapport_activites_mensuel_pdf.html", data)
-    pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf()
+    html = render_to_string(
+        "documents/rapport_activites_mensuel_pdf.html",
+        data,
+        request=request,
+    )
+
+    pdf = HTML(
+        string=html,
+        base_url=request.build_absolute_uri("/")
+    ).write_pdf()
 
     filename = f"rapport_activites_mensuel_{annee}_{mois:02d}.pdf"
-    resp = HttpResponse(pdf, content_type="application/pdf")
-    resp["Content-Disposition"] = f'inline; filename="{filename}"'
-    return resp
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response
 
 
 # =========================

@@ -142,10 +142,12 @@
   <!-- ✅ En-tête -->
   <div class="header">
     <div class="bloc-logo">
-      <div class="rdc">République Démocratique du Congo</div>
-      <img class="logo" src="{{ logo_path }}" alt="Logo CNSS">
-      <div class="cnss">Caisse Nationale de Sécurité Sociale</div>
-    </div>
+		<div class="rdc">République Démocratique du Congo</div>
+		{% if logo_path %}
+		<img class="logo" src="{{ logo_path }}" alt="">
+		{% endif %}
+		<div class="cnss">Caisse Nationale de Sécurité Sociale</div>
+	</div>
 
     <div class="service">SERVICE COURRIER/SDG</div>
   </div>
