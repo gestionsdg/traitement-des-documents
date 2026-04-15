@@ -3,9 +3,16 @@
 <head>
   <meta charset="utf-8">
   <title>Rapport hebdomadaire</title>
+
   <style>
     @page{ size:A4; margin:1.2cm; }
-    body{ font-family: Arial, sans-serif; font-size:12px; color:#111; }
+
+    body{
+      font-family: Arial, sans-serif;
+      font-size:12px;
+      color:#111;
+    }
+
     h1{
       text-align:center;
       font-size:16px;
@@ -13,14 +20,47 @@
       text-decoration: underline;
       text-underline-offset: 4px;
     }
-    table{ width:100%; border-collapse:collapse; }
-    th, td{ border:1px solid #6b7280; padding:8px; }
-    th{ background:#e0f2fe; text-align:center; font-weight:800; }
-    td.label{ font-weight:700; }
-    td.num{ text-align:center; font-weight:800; }
-    .note{ margin-top:10px; font-size:11px; color:#374151; }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      border:1px solid #6b7280;
+      padding:8px;
+    }
+
+    /* ✔ titres restent en gras */
+    th{
+      background:#e0f2fe;
+      text-align:center;
+      font-weight:800;
+    }
+
+    /* ❌ suppression du gras global */
+    td.label{
+      font-weight:400;
+    }
+
+    td.num{
+      text-align:center;
+      font-weight:400;
+    }
+
+    /* ✔ lignes importantes */
+    .strong-row td{
+      font-weight:800;
+    }
+
+    .note{
+      margin-top:10px;
+      font-size:11px;
+      color:#374151;
+    }
   </style>
 </head>
+
 <body>
 
   <h1>Rapport d’activités de la semaine du {{ debut_str }} au {{ fin_str }}</h1>
@@ -32,29 +72,80 @@
         <th style="width:30%;">Total</th>
       </tr>
     </thead>
+
     <tbody>
-      <tr><td class="label">Documents reçus / Province</td><td class="num">{{ recus_prov|default_if_none:0 }}</td></tr>
-      <tr><td class="label">Documents reçus / Kinshasa</td><td class="num">{{ recus_kin|default_if_none:0 }}</td></tr>
+      <tr>
+        <td class="label">Province</td>
+        <td class="num">{{ recus_prov|default_if_none:0 }}</td>
+      </tr>
 
-      <tr><td class="label">Documents traités</td><td class="num">{{ traites|default_if_none:0 }}</td></tr>
+      <tr>
+        <td class="label">Kinshasa</td>
+        <td class="num">{{ recus_kin|default_if_none:0 }}</td>
+      </tr>
 
-      <!-- ✅ AJOUT -->
-      <tr><td class="label">Documents non traités</td><td class="num">{{ non_traites|default_if_none:0 }}</td></tr>
+      <tr>
+        <td class="label">Documents traités</td>
+        <td class="num">{{ traites|default_if_none:0 }}</td>
+      </tr>
 
-      <!-- ✅ Total reçus = Prov + Kin -->
-      <tr><td class="label"><b>Total documents reçus</b></td><td class="num"><b>{{ total_recus|default_if_none:0 }}</b></td></tr>
+      <tr>
+        <td class="label">Documents non traités</td>
+        <td class="num">{{ non_traites|default_if_none:0 }}</td>
+      </tr>
 
-      <tr><th colspan="2">Courriers signés et expédiés par la Direction Générale</th></tr>
+      <!-- ✔ TOTAL DOCUMENTS -->
+      <tr class="strong-row">
+        <td>Total documents reçus</td>
+        <td class="num">{{ total_recus|default_if_none:0 }}</td>
+      </tr>
 
-      <tr><td class="label">Chrono</td><td class="num">{{ dossiers_chrono|default_if_none:0 }}</td></tr>
-      <tr><td class="label">Gouvernement</td><td class="num">{{ dossiers_gouv|default_if_none:0 }}</td></tr>
-      <tr><td class="label">Paiement Prestations Sociales</td><td class="num">{{ dossiers_pps|default_if_none:0 }}</td></tr>
-      <tr><td class="label">Allocations Prénatales</td><td class="num">{{ dossiers_ap|default_if_none:0 }}</td></tr>
-      <tr><td class="label">Allocations Familiales</td><td class="num">{{ dossiers_af|default_if_none:0 }}</td></tr>
-	  <tr><td class="label">Ordre de mission</td><td class="num">{{ dossiers_om|default_if_none:0 }}</td></tr>
-      <tr><td class="label">Décision</td><td class="num">{{ dossiers_decision|default_if_none:0 }}</td></tr>
-     
-      <tr><td class="label"><b>Total courriers signés et expédiés</b></td><td class="num"><b>{{ total_sortants|default_if_none:0 }}</b></td></tr>
+      <!-- ✔ TITRE SECTION -->
+      <tr>
+        <th colspan="2">Courriers signés et expédiés par la Direction Générale</th>
+      </tr>
+
+      <tr>
+        <td class="label">Chrono</td>
+        <td class="num">{{ dossiers_chrono|default_if_none:0 }}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Gouvernement</td>
+        <td class="num">{{ dossiers_gouv|default_if_none:0 }}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Paiement Prestations Sociales</td>
+        <td class="num">{{ dossiers_pps|default_if_none:0 }}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Allocations Prénatales</td>
+        <td class="num">{{ dossiers_ap|default_if_none:0 }}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Allocations Familiales</td>
+        <td class="num">{{ dossiers_af|default_if_none:0 }}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Ordre de mission</td>
+        <td class="num">{{ dossiers_om|default_if_none:0 }}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Décision</td>
+        <td class="num">{{ dossiers_decision|default_if_none:0 }}</td>
+      </tr>
+
+      <!-- ✔ TOTAL COURRIERS -->
+      <tr class="strong-row">
+        <td>Total courriers signés et expédiés</td>
+        <td class="num">{{ total_sortants|default_if_none:0 }}</td>
+      </tr>
+
     </tbody>
   </table>
 
