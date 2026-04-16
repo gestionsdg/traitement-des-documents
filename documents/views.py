@@ -895,10 +895,11 @@ def rapport_activites_hebdo(request):
 
     return render(request, "documents/rapport_activites_hebdo.html", data)
 
-
 @login_required(login_url='connexion')
 def rapport_activites_hebdo_pdf(request):
+    from pathlib import Path
     from weasyprint import HTML
+    from django.contrib.staticfiles import finders
 
     debut_str_get = (request.GET.get("debut") or "").strip()
     fin_str_get = (request.GET.get("fin") or "").strip()
@@ -912,10 +913,25 @@ def rapport_activites_hebdo_pdf(request):
     lundi, vendredi = _normalize_monday_friday(debut_date, fin_date)
     data = _rapport_hebdo_data(lundi, vendredi)
 
-    html = render_to_string("documents/rapport_activites_hebdo_pdf.html", data)
-    pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf()
+    # Logo fiable pour WeasyPrint
+    logo_file = finders.find("images/Logo_cnss.jpg")
+    logo_path = Path(logo_file).as_uri() if logo_file else ""
+
+    data.update({
+        "logo_path": logo_path,
+    })
+
+    html = render_to_string(
+        "documents/rapport_activites_hebdo_pdf.html",
+        data,
+        request=request,
+    )
+    pdf = HTML(
+        string=html,
+        base_url=request.build_absolute_uri("/")
+    ).write_pdf()
 
     filename = f"rapport_activites_hebdo_{lundi.strftime('%Y%m%d')}_{vendredi.strftime('%Y%m%d')}.pdf"
-    resp = HttpResponse(pdf, content_type="application/pdf")
-    resp["Content-Disposition"] = f'inline; filename="{filename}"'
-    return resp
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response

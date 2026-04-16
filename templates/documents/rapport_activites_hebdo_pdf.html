@@ -5,12 +5,59 @@
   <title>Rapport hebdomadaire</title>
 
   <style>
-    @page{ size:A4; margin:1.2cm; }
+    @page{
+      size:A4;
+      margin:1.2cm;
+    }
 
     body{
       font-family: Arial, sans-serif;
       font-size:12px;
       color:#111;
+    }
+
+    .header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      margin:0 0 14px 0;
+      gap:12px;
+    }
+
+    .left-block{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      line-height:1.15;
+    }
+
+    .etat{
+      font-weight:800;
+      font-size:12px;
+      margin:0 0 4px 0;
+    }
+
+    .logo{
+      width:85px;
+      height:auto;
+      margin:0 0 4px 0;
+      display:block;
+    }
+
+    .institution{
+      font-size:12px;
+      font-weight:800;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .service{
+      font-weight:800;
+      font-size:12px;
+      text-transform:uppercase;
+      white-space:nowrap;
+      margin-top:2px;
+      text-align:right;
     }
 
     h1{
@@ -31,14 +78,12 @@
       padding:8px;
     }
 
-    /* ✔ titres restent en gras */
     th{
       background:#e0f2fe;
       text-align:center;
       font-weight:800;
     }
 
-    /* ❌ suppression du gras global */
     td.label{
       font-weight:400;
     }
@@ -48,7 +93,6 @@
       font-weight:400;
     }
 
-    /* ✔ lignes importantes */
     .strong-row td{
       font-weight:800;
     }
@@ -62,6 +106,21 @@
 </head>
 
 <body>
+
+  <!-- En-tête -->
+  <div class="header">
+    <div class="left-block">
+      <div class="etat">République Démocratique du Congo</div>
+
+      {% if logo_path %}
+        <img class="logo" src="{{ logo_path }}" alt="">
+      {% endif %}
+
+      <div class="institution">Caisse Nationale de Sécurité Sociale</div>
+    </div>
+
+    <div class="service">SERVICE COURRIER/SDG</div>
+  </div>
 
   <h1>Rapport d’activités de la semaine du {{ debut_str }} au {{ fin_str }}</h1>
 
@@ -94,13 +153,11 @@
         <td class="num">{{ non_traites|default_if_none:0 }}</td>
       </tr>
 
-      <!-- ✔ TOTAL DOCUMENTS -->
       <tr class="strong-row">
         <td>Total documents reçus</td>
         <td class="num">{{ total_recus|default_if_none:0 }}</td>
       </tr>
 
-      <!-- ✔ TITRE SECTION -->
       <tr>
         <th colspan="2">Courriers signés et expédiés par la Direction Générale</th>
       </tr>
@@ -140,12 +197,10 @@
         <td class="num">{{ dossiers_decision|default_if_none:0 }}</td>
       </tr>
 
-      <!-- ✔ TOTAL COURRIERS -->
       <tr class="strong-row">
         <td>Total courriers signés et expédiés</td>
         <td class="num">{{ total_sortants|default_if_none:0 }}</td>
       </tr>
-
     </tbody>
   </table>
 
