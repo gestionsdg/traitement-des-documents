@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get(
     "dev-secret-key-only-change-me"
 )
 
-DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 
 # ============================================================

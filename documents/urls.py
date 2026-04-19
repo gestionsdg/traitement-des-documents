@@ -1,16 +1,26 @@
-# documents/urls.py
 from django.urls import path
+from django.shortcuts import redirect
 from . import views
 from . import views_export  # ✅ Export Excel
 from . import views_pdf     # ✅ PDF (traités / non traités)
 
 app_name = "documents"
 
+
+def home_redirect(request):
+    return redirect("connexion")
+
+
 urlpatterns = [
+    # =========================
+    # Accueil → page de connexion
+    # =========================
+    path("", home_redirect, name="home"),
+
     # =========================
     # Tableau de bord
     # =========================
-    path("", views.dashboard, name="dashboard"),
+    path("dashboard/", views.dashboard, name="dashboard"),
 
     # =========================
     # Documents entrants
